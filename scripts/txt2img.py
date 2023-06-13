@@ -300,7 +300,7 @@ def main():
                             prompts = list(prompts)
                         c = model.get_learned_conditioning(prompts)
                         shape = [opt.C, opt.H // opt.f, opt.W // opt.f]
-                        samples_ddim, _ = sampler.sample(S=opt.ddim_steps,
+                        samples_ddim, intermediates = sampler.sample(S=opt.ddim_steps,
                                                          conditioning=c,
                                                          batch_size=opt.n_samples,
                                                          shape=shape,
@@ -308,7 +308,36 @@ def main():
                                                          unconditional_guidance_scale=opt.scale,
                                                          unconditional_conditioning=uc,
                                                          eta=opt.ddim_eta,
-                                                         x_T=start_code)
+                                                         x_T=start_code,
+                                                         log_every_t=1,save_inter_path = 'outputs/interm', img_file_base=f"img{n:05}", model=model)
+
+                        #print(len(intermediates))
+                        #interms = intermediates['x_inter']  #'x_inter', 'pred_x0'
+
+                        #Nims = len(interms)
+                        #R = int(np.floor(np.sqrt(Nims)))
+                        #C = int(np.ceil(Nims/R))
+
+                        #import matplotlib.pyplot as plt
+                        #fh = plt.figure()
+                        #fk = 0
+                        #for inter in interms:  #'x_inter'
+                        #    x_samples_ddim = model.decode_first_stage(inter)
+                        #    x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
+                        #    x_samples_ddim = x_samples_ddim.cpu().permute(0, 2, 3, 1).numpy()
+
+                            #x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
+                        #    x_checked_image = x_samples_ddim
+
+                        #    x_checked_image_torch = torch.from_numpy(x_checked_image).permute(0, 3, 1, 2)
+
+                        #    for x_sample in x_checked_image_torch:
+                        #         x_sample = 255. * rearrange(x_sample.cpu().numpy(), 'c h w -> h w c')
+                        #         img = x_sample.astype(np.uint8)
+                        #         fk += 1
+                        #         ph = fh.add_subplot(R,C,fk)
+                        #         ph.imshow(img)
+                        #plt.show()
 
                         x_samples_ddim = model.decode_first_stage(samples_ddim)
                         x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)

@@ -7,6 +7,55 @@ from functools import partial
 
 from ldm.modules.diffusionmodules.util import make_ddim_sampling_parameters, make_ddim_timesteps, noise_like
 
+import os
+from einops import rearrange
+from PIL import Image
+
+from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
+from transformers import AutoFeatureExtractor
+
+safety_model_id = "CompVis/stable-diffusion-safety-checker"
+safety_feature_extractor = AutoFeatureExtractor.from_pretrained(safety_model_id)
+safety_checker = StableDiffusionSafetyChecker.from_pretrained(safety_model_id)
+
+def numpy_to_pil(images):
+    """
+    Convert a numpy image or a batch of images to a PIL image.
+    """
+    if images.ndim == 3:
+        images = images[None, ...]
+    images = (images * 255).round().astype("uint8")
+    pil_images = [Image.fromarray(image) for image in images]
+
+    return pil_images
+
+#def put_watermark(img, wm_encoder=None):
+#    if wm_encoder is not None:
+#        img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+#        img = wm_encoder.encode(img, 'dwtDct')
+#        img = Image.fromarray(img[:, :, ::-1])
+#    return img
+
+
+def load_replacement(x):
+    try:
+        hwc = x.shape
+        y = Image.open("assets/rick.jpeg").convert("RGB").resize((hwc[1], hwc[0]))
+        y = (np.array(y)/255.0).astype(x.dtype)
+        assert y.shape == x.shape
+        return y
+    except Exception:
+        return x
+
+def check_safety(x_image):
+    safety_checker_input = safety_feature_extractor(numpy_to_pil(x_image), return_tensors="pt")
+    x_checked_image, has_nsfw_concept = safety_checker(images=x_image, clip_input=safety_checker_input.pixel_values)
+    assert x_checked_image.shape[0] == len(has_nsfw_concept)
+    for i in range(len(has_nsfw_concept)):
+        if has_nsfw_concept[i]:
+            x_checked_image[i] = load_replacement(x_checked_image[i])
+    return x_checked_image, has_nsfw_concept
+
 
 class PLMSSampler(object):
     def __init__(self, model, schedule="linear", **kwargs):
@@ -107,7 +156,7 @@ class PLMSSampler(object):
                                                     x_T=x_T,
                                                     log_every_t=log_every_t,
                                                     unconditional_guidance_scale=unconditional_guidance_scale,
-                                                    unconditional_conditioning=unconditional_conditioning,
+                                                    unconditional_conditioning=unconditional_conditioning,**kwargs
                                                     )
         return samples, intermediates
 
@@ -117,13 +166,20 @@ class PLMSSampler(object):
                       callback=None, timesteps=None, quantize_denoised=False,
                       mask=None, x0=None, img_callback=None, log_every_t=100,
                       temperature=1., noise_dropout=0., score_corrector=None, corrector_kwargs=None,
-                      unconditional_guidance_scale=1., unconditional_conditioning=None,):
+                      unconditional_guidance_scale=1., unconditional_conditioning=None,**kwargs):
         device = self.model.betas.device
         b = shape[0]
         if x_T is None:
             img = torch.randn(shape, device=device)
         else:
             img = x_T
+
+
+        #import matplotlib.pyplot as plt
+        #from einops import rearrange
+        #x_sample = 255. * rearrange(img.cpu().numpy(), 'c h w -> h w c')
+        #plt.imshow(x_sample.astype('uint8'))
+        #plt.show()
 
         if timesteps is None:
             timesteps = self.ddpm_num_timesteps if ddim_use_original_steps else self.ddim_timesteps
@@ -138,6 +194,33 @@ class PLMSSampler(object):
 
         iterator = tqdm(time_range, desc='PLMS Sampler', total=total_steps)
         old_eps = []
+
+        if 'save_inter_path' in kwargs:
+
+            save_inter_path = kwargs['save_inter_path']
+            model = kwargs['model']
+            img_file_base = kwargs['img_file_base']
+
+            if not os.path.exists(save_inter_path):
+                os.mkdir(save_inter_path)
+
+            base_count = 0 #len(os.listdir(save_inter_path))
+
+            x_samples_ddim = model.decode_first_stage(img)
+            x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
+            x_samples_ddim = x_samples_ddim.cpu().permute(0, 2, 3, 1).numpy()
+
+            x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
+
+            if not has_nsfw_concept[0]:
+                x_checked_image_torch = torch.from_numpy(x_checked_image).permute(0, 3, 1, 2)
+                x_sample = x_checked_image_torch[0]
+                x_sample = 255. * rearrange(x_sample.cpu().numpy(), 'c h w -> h w c')
+                #img = x_sample.astype(np.uint8)
+                img_save = Image.fromarray(x_sample.astype(np.uint8))
+                #img = put_watermark(img, wm_encoder)
+                img_save.save(os.path.join(save_inter_path, img_file_base + "_" + f"{base_count:05}.png"))
+            base_count += 1
 
         for i, step in enumerate(iterator):
             index = total_steps - i - 1
@@ -164,8 +247,30 @@ class PLMSSampler(object):
             if img_callback: img_callback(pred_x0, i)
 
             if index % log_every_t == 0 or index == total_steps - 1:
-                intermediates['x_inter'].append(img)
-                intermediates['pred_x0'].append(pred_x0)
+                if 'save_inter_path' in kwargs:
+                    img_path = os.path.join(save_inter_path,'x_iter%d.jpg' % i)
+                    x_samples_ddim = model.decode_first_stage(img)
+                    x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
+                    x_samples_ddim = x_samples_ddim.cpu().permute(0, 2, 3, 1).numpy()
+
+                    x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
+                    #x_checked_image = x_samples_ddim
+
+                    if not has_nsfw_concept[0]:
+                        x_checked_image_torch = torch.from_numpy(x_checked_image).permute(0, 3, 1, 2)
+
+                        x_sample = x_checked_image_torch[0]
+                        x_sample = 255. * rearrange(x_sample.cpu().numpy(), 'c h w -> h w c')
+                        #img = x_sample.astype(np.uint8)
+                        img_save = Image.fromarray(x_sample.astype(np.uint8))
+                        #img = put_watermark(img, wm_encoder)
+                        img_save.save(os.path.join(save_inter_path, img_file_base + "_" + f"{base_count:05}.png"))
+                    base_count += 1
+
+
+                else:
+                    intermediates['x_inter'].append(img)
+                    intermediates['pred_x0'].append(pred_x0)
 
         return img, intermediates
 
