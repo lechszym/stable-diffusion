@@ -8,7 +8,6 @@
 
 	$gen_folder = "generated";
 	$demo_folders = glob($gen_folder . "/demo*");
-	print_r($demo_folders);
 	$demo_count = count($demo_folders);
 ?>
 
@@ -49,6 +48,8 @@
             margin: 0;
             padding: 0;
         }
+		
+		
         .imgbox {
             display: grid;
             height: 100%;
@@ -62,13 +63,48 @@
         #title {
             margin-top: 1em;
         }
+		
+		.notopimage {
+			font-size: 3vw !important;
+		}
+
+		.content {
+		  display: flex;
+		  flex-wrap: wrap;
+	      position: relative;
+		  width: 100%;
+		  padding: 0px 0px 30px 25px;
+		  float: left;
+		  font-family: Helvetica, Arial, sans-serif;
+		  font-size: 14px;
+		  line-height: 21px;
+		  color: #333333;
+		}
+
+		.content p {
+			font-size: 1vw;
+			line-height: 1.2vw;
+			margin-bottom: 14px;
+			xmargin-bottom: 14px;
+			display: block;
+		}
+
+
+		.intro-text {
+			color: #696b73;
+			font-size: 1.5vw !important;
+			font-family: 'Amsi pro condlight', Helvetica, Arial, Geneva, sans-serif;
+			font-weight: 400;
+			line-height: 2vw !important;
+		}
+
 
         h3 {
-          color: grey;
           font-family: 'Amsi Pro Condbold', 'Open Sans', Helvetica, Arial, Geneva, sans-serif;
-          font-size: 23px;
+          font-size: 1.5vw !important;
+		  color: #696b73;
           margin-top: 5px;
-          display: inline;
+		  margin-botom: 5px;
         }
 
         .panel {
@@ -78,13 +114,13 @@
 
         .panel_num {
           float: left;
-          font-size: 40px;
+          font-size: 2.5vw;
           padding-bottom: 40px;
           margin-right: 10px;
         }
 
         .column {
-          width: 820px;
+          width: 45%;
           float: left;
           margin-left: 40px;
         }
@@ -95,13 +131,48 @@
         }
 
         .diff_prompt {
-          font-size: 20px;
+          font-size: 1vw;
           margin-bottom: 5px;
         }
 
         .diff_res {
           margin-left: 35px;
+		  margin-bottom: 1.2vw;
         }
+		
+		#gen_form > label {
+   		    color: #696b73;
+			font-size: 1vw;
+			padding-bottom: 5px;
+			display: block;
+		}
+
+		#gen_form > input {
+			font-size: 1vw;
+		}
+		
+		.button {
+			background: #f9c000;
+			border: 2px solid #dfa000;
+			border-radius: 16px;
+			color: #333333;
+			cursor: pointer;
+			font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+			margin: 0 23px 21px 0;
+			padding: 5px 14px;
+			text-align: centre;
+			transition: all 0.3s ease-out;
+			width: 10vw;
+			font-size: 1vw;
+			font-weight: 400
+			line-height: 1vw;
+			min-height: 23px;
+			display: inline-block;
+			vertical-algin: middle;
+			white-space: normal !important;
+			margin: 5px 0;
+		}
+
     </style>
 
 
@@ -125,14 +196,14 @@
     </div> <!-- ends title -->
    
     <div>
-      <div id="content" style="padding-left: 2em;">
+      <div class="content">
         <p class="intro-text"><em>Diffusion</em>-based generative models are deep neural networks that bring out an image from random noise.</p>
            
         <form id="gen_form">
           <h3>Try it!</h3><br>
-          <label style="margin-top:20px" for="prompt">Describe what image you want to generate:</label><br>
-          <input style="width: 50em" type="text" id="prompt" name="prompt" size="512">
-          <input id="gen" type="submit" value="Generate">
+          <label style="margin-top:20px" for="prompt">Describe what image you want to generate:</label>
+          <input style="width: 93%" type="text" id="prompt" name="prompt" size="512">
+          <input class="button" id="gen" type="submit" value="Generate">
         </form>
 
       </div>
@@ -165,7 +236,7 @@
 			  for($m = 1; $m<= $n_iter; $m++) {
 				  $img_file = $demo_path . "/diffusion_" . str_pad($m, 2, '0', STR_PAD_LEFT) . ".png";
 				  if(file_exists($img_file)) {
-					echo '  <img id="' . $demo_id . '_' . $m . '" src="' . $img_file . '" width="' . $W/2 . 'px" height="' . $H/2 . '">' . "\n"; 
+					echo '  <img id="' . $demo_id . '_' . $m . '" src="' . $img_file . '" width="' . '31%' . 'px" height="' . '31%' . '">' . "\n"; 
 				  }
 			  }
 			  echo "</div>\n";
@@ -180,7 +251,7 @@
   <div id="rightcol" class="column">
     <div>
 
-    <div id="content" style="padding-left: 2em;">
+    <div class="content" style="padding-left: 2em; margin-top: 2em;">
    
       <div class="panel">
 
@@ -189,7 +260,7 @@
         <p>A set of captioned images is infused with increasing amounts of noise.</p>
 
         <div class="im_panel">
-          <img src="images/diff1.png" width="350px">
+          <img src="images/diff1.png" width="40%">
         </div>
 
       </div>
@@ -201,7 +272,7 @@
         <p>A neural network that takes as input a text caption and an image is trained to produce slightly less noisy version of that image.  This is done on lots of images with various levels of noise.</p>
 
         <div class="im_panel">
-          <img src="images/diff2.png" width="450px">
+          <img src="images/diff2.png" width="55%">
         </div>
 
       </div>
@@ -213,7 +284,7 @@
         <p>Once trained, the network can generate a new image through repeated de-noising, starting from completely ranom noise.  The text caption guides the generation process.  Different starting random noise produces different image.</p>
 
         <div class="im_panel">
-          <img src="images/diff3.png" width="450px">
+          <img src="images/diff3.png" width="55%">
         </div>
 
       </div>
@@ -268,15 +339,9 @@ async function check_update(msg, prompt) {
     var done = false;
     var step = 0;
     var n_iter = 1;
+	var first = true;
 
-    var content = '<div id="' + msg.demo + '" class="diff_res">';
-    content += '<div id="' + msg.demo + '_prompt" class="diff_prompt">Generating images based on prompt: "' + prompt + '"...</div>';  
-    for (let i = 1; i <= parseInt(msg.n_iter); i++) {
-          content += '<img id="' + msg.demo + '_' + i + '" src="" width="' + parseInt(msg.W)/2 + '" height="' + parseInt(msg.H)/2 + '">';
-    } 
-    content += '</div>';
 
-    $(content).insertAfter('#results');
 
     //alert(msg.n_iter);
     var next = true;
@@ -293,6 +358,26 @@ async function check_update(msg, prompt) {
                     umsg = JSON.parse(umsg);
 
                     if(umsg.update && umsg.results) {
+						if(first) {
+							var numItems = $('.diff_res').length
+							while (numItems >= 2) {
+								$('.diff_res').last().remove();
+								numItems = $('.diff_res');
+							}
+
+
+							var content = '<div id="' + msg.demo + '" class="diff_res">';
+							content += '<div id="' + msg.demo + '_prompt" class="diff_prompt">Generating images based on prompt: "' + prompt + '"...</div>';  
+							for (let i = 1; i <= parseInt(msg.n_iter); i++) {
+								  content += '<img id="' + msg.demo + '_' + i + '" src="" width="31%" height="31%">';
+							} 
+							content += '</div>';
+
+							$(content).insertAfter('#results');
+							first = false;
+						}
+						
+						
                         let img_id = '#' + umsg.demo + '_' + umsg.n_iter;
                         $(img_id).load(umsg.im_file, function(responseTxt, statusTxt, xhr) {
 							if(statusTxt == "success") {
