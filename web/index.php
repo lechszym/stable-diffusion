@@ -6,7 +6,10 @@
     $show_banner = false; 
     $n_iter = $num_images_to_generate;
 
-
+	$gen_folder = "generated";
+	$demo_folders = glob($gen_folder . "/demo*");
+	print_r($demo_folders);
+	$demo_count = count($demo_folders);
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +29,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     
-	<title>Department of Computer Science, Department of Computer Science, University of Otago, New Zealand</title>
+	<title>Department of Computer Science, University of Otago, New Zealand</title>
 
 	<style>[v-if], [v-show] { display: none !important; }</style>
 
@@ -136,6 +139,40 @@
 
       <div id="results"></div>
       <p></p>
+
+	<?php
+	  $k=0;
+	  for($i = count($demo_folders) - 1; $i >= 0; $i--)
+	  {
+		  if($k >= 2) {
+			  break;
+		  }
+		  $demo_path = $demo_folders[$i];
+		  $prompt_file = $demo_path . '/prompt.txt';
+		  
+		  if(!file_exists($prompt_file)) {
+			  continue;
+		  }
+		  
+		  $prompt = file_get_contents($prompt_file);
+
+		  $j = strpos($demo_path, "demo");
+
+		  if($j !== false) {
+			  $demo_id = substr($demo_path, $j);
+			  echo '<div id="' . $demo_id . '" class="diff_res">' . "\n";
+			  echo '  <div id="' . $demo_id . '_prompt" class="diff_prompt">Generated images based on prompt: "' . $prompt . '".</div>' . "\n";
+			  for($m = 1; $m<= $n_iter; $m++) {
+				  $img_file = $demo_path . "/diffusion_" . str_pad($m, 2, '0', STR_PAD_LEFT) . ".png";
+				  if(file_exists($img_file)) {
+					echo '  <img id="' . $demo_id . '_' . $m . '" src="' . $img_file . '" width="' . $W/2 . 'px" height="' . $H/2 . '">' . "\n"; 
+				  }
+			  }
+			  echo "</div>\n";
+			  $k += 1;
+		  }
+	  }
+	?>
 
     </div>
   </div>

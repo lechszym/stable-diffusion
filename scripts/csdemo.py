@@ -311,6 +311,10 @@ def run_diffusion(opt, device, model, sampler, wm_encoder, seed):
 
     sample_path = os.path.join(outpath, opt.demo)
     os.makedirs(sample_path, exist_ok=True)
+    prompt_file = os.path.join(outpath,opt.demo,"prompt.txt")
+    with open(prompt_file, "w") as fp:
+        fp.writelines(opt.prompt)
+
     base_count = 1#len(os.listdir(sample_path))
     #grid_count = len(os.listdir(outpath)) - 1
 
@@ -381,8 +385,6 @@ def run_diffusion(opt, device, model, sampler, wm_encoder, seed):
 
                 toc = time.time()
 
-    print(f"Your samples are ready and waiting for you here: \n{outpath} \n"
-          f" \nEnjoy.")
 
 
 def ready(cmd_file):
@@ -416,6 +418,7 @@ if __name__ == "__main__":
 
                     opt_cmd = parse_arguments(cmd_params)
                     opt_cmd.outdir = opt.outdir
+                    opt_cmd.skip_nsfw = opt.skip_nsfw
                     print("  Got go...")
                     sys.stdout.write("  ")
                     print(opt)
