@@ -3,12 +3,30 @@
     $gen_folder = "generated";
     $cmd_folder = "cmd";
 
-    $gen_count = count(glob($gen_folder . "/*"));
+    $gen_count = count(glob($gen_folder . "/demo*"));
 
     $ready_file = $cmd_folder . "/ready";
     $go_file = $cmd_folder . "/go";
 
     $args = $_POST;
+
+	function deleteDir($dirPath) {
+		if (! is_dir($dirPath)) {
+			return;
+		}
+		if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+			$dirPath .= '/';
+		}
+		$files = glob($dirPath . '*', GLOB_MARK);
+		foreach ($files as $file) {
+			if (is_dir($file)) {
+				deleteDir($file);
+			} else {
+				unlink($file);
+			}
+		}
+		rmdir($dirPath);
+	}
 
     if(isset($args['cmd']) && !empty($args['cmd'])) {
         $cmd = $args['cmd'];
@@ -29,7 +47,16 @@
             //Testing (remove)
             //$demo_count -= 1;
 
-            $demo = "demo" . str_pad($demo_count, 5, '0', STR_PAD_LEFT);
+			while(True) {
+				$demo = "demo" . str_pad($demo_count, 5, '0', STR_PAD_LEFT);
+				if(file_exists($gen_folder . "/" . $demo)) {
+					$demo_count +=1;
+				} else {
+					break;
+				}
+			}
+			
+			
             $cmd = "--prompt \"$prompt\" --n_iter $n_iter --n_samples 1 --H $H --W $W --demo $demo\n";
 
             unlink($ready_file);
@@ -69,7 +96,67 @@
                     echo json_encode(array("update"=>True, "results"=>False));
                 }
             }
-        }
+        } elseif($cmd == 'random') {
+			$rcount = intval($args['rcount']);
+			$lshown = intval($args['lshown']);
+			$demo_folders = glob($gen_folder . "/demo*");
+			$demos = array();
+			foreach($demo_folders as $folder) {
+				$all_results = True;
+				for($i=1;$i<=3;$i++) {
+					$final_image = $folder . "/diffusion_" . str_pad($i, 2, '0', STR_PAD_LEFT) . ".png";
+                    if(!file_exists($final_image)) {
+						$all_results = False;
+						break;
+					}
+				}
+				if($all_results) {
+					array_push($demos,$folder);
+				}				
+			}
+
+			$demo_count = count($demos);
+			if($demo_count >= 1) {
+				if($demo_count == 1) {
+					$index = 0;
+					$rcount = 1;
+				} else if($rcount < $demo_count) {
+					$index = $rcount;	
+					$rcount = $rcount + 1;
+				} else {
+					while(True) {
+						$index = rand(0,$demo_count-1);
+						if($index != $lshown) {
+							break;
+						}
+					}
+					$rcount = $demo_count;
+				}
+				$demo_path = $demos[$index];
+				$j = strpos($demo_path, "demo");
+				if($j !== false) {
+					$demo = substr($demo_path, $j);
+					$lshown = $index;
+					echo json_encode(array("ok"=>True, "demo"=>$demo, "n_iter"=> "3", "rcount" => $rcount, "lshown" => $lshown));			
+				} else {
+					echo json_encode(array("ok"=>False));
+				}
+
+				
+			} else {
+				echo json_encode(array("ok"=>False));
+			}
+		} elseif($cmd == 'delete') {
+			$demo = $args['demo'];
+			$demo_folder = $gen_folder . "/" . $demo;
+
+			if(file_exists($demo_folder)) {
+				deleteDir($demo_folder);
+				echo json_encode(array("ok"=>True, "demo"=>$demo));
+			} else {
+				echo json_encode(array("ok"=>False));				
+			}
+		}
     }
 
 ?>

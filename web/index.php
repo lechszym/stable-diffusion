@@ -36,145 +36,13 @@
 	<link rel="stylesheet" href="css/jquery-ui.min.css">
 	
 	<link id="injectcss" rel="stylesheet" href="css/computer-science.css" media="all">
+	<link rel="stylesheet" href="css/csdemo.css">
 	
 	
 	<script src="scripts/jquery.min.js"></script>
     <script src="scripts/jquery-migrate.min.js"></script>
     <script src="scripts/bad-words.js"></script>
     <meta name="Description" content="University of Otago Department of Computer Science">
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
-		
-		
-        .imgbox {
-            display: grid;
-            height: 100%;
-        }
-        .center-fit {
-            max-width: 100%;
-            max-height: 100vh;
-            margin: auto;
-        }
-
-        #title {
-            margin-top: 1em;
-        }
-		
-		.notopimage {
-			font-size: 3vw !important;
-		}
-
-		.content {
-		  display: flex;
-		  flex-wrap: wrap;
-	      position: relative;
-		  width: 100%;
-		  padding: 0px 0px 30px 25px;
-		  float: left;
-		  font-family: Helvetica, Arial, sans-serif;
-		  font-size: 14px;
-		  line-height: 21px;
-		  color: #333333;
-		}
-
-		.content p {
-			font-size: 1vw;
-			line-height: 1.2vw;
-			margin-bottom: 14px;
-			xmargin-bottom: 14px;
-			display: block;
-		}
-
-
-		.intro-text {
-			color: #696b73;
-			font-size: 1.5vw !important;
-			font-family: 'Amsi pro condlight', Helvetica, Arial, Geneva, sans-serif;
-			font-weight: 400;
-			line-height: 2vw !important;
-		}
-
-
-        h3 {
-          font-family: 'Amsi Pro Condbold', 'Open Sans', Helvetica, Arial, Geneva, sans-serif;
-          font-size: 1.5vw !important;
-		  color: #696b73;
-          margin-top: 5px;
-		  margin-botom: 5px;
-        }
-
-        .panel {
-          margin-top: 20px;
-          width: 100%;
-        }
-
-        .panel_num {
-          float: left;
-          font-size: 2.5vw;
-          padding-bottom: 40px;
-          margin-right: 10px;
-        }
-
-        .column {
-          width: 45%;
-          float: left;
-          margin-left: 40px;
-        }
-
-        .im_panel {
-          text-align: center;
-          width: 100%;
-        }
-
-        .diff_prompt {
-          font-size: 1vw;
-          margin-bottom: 5px;
-        }
-
-        .diff_res {
-          margin-left: 35px;
-		  margin-bottom: 1.2vw;
-        }
-		
-		#gen_form > label {
-   		    color: #696b73;
-			font-size: 1vw;
-			padding-bottom: 5px;
-			display: block;
-		}
-
-		#gen_form > input {
-			font-size: 1vw;
-		}
-		
-		.button {
-			background: #f9c000;
-			border: 2px solid #dfa000;
-			border-radius: 16px;
-			color: #333333;
-			cursor: pointer;
-			font-family: 'Open Sans', Helvetica, Arial, sans-serif;
-			margin: 0 23px 21px 0;
-			padding: 5px 14px;
-			text-align: centre;
-			transition: all 0.3s ease-out;
-			width: 10vw;
-			font-size: 1vw;
-			font-weight: 400
-			line-height: 1vw;
-			min-height: 23px;
-			display: inline-block;
-			vertical-algin: middle;
-			white-space: normal !important;
-			margin: 5px 0;
-		}
-
-    </style>
-
 
 </head>
 
@@ -236,7 +104,7 @@
 			  for($m = 1; $m<= $n_iter; $m++) {
 				  $img_file = $demo_path . "/diffusion_" . str_pad($m, 2, '0', STR_PAD_LEFT) . ".png";
 				  if(file_exists($img_file)) {
-					echo '  <img id="' . $demo_id . '_' . $m . '" src="' . $img_file . '" width="' . '31%' . 'px" height="' . '31%' . '">' . "\n"; 
+					echo '  <img id="' . $demo_id . '_' . $m . '" src="' . $img_file . '" width="31%" height="31%">' . "\n"; 
 				  }
 			  }
 			  echo "</div>\n";
