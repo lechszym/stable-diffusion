@@ -219,7 +219,7 @@ class PLMSSampler(object):
                 #img = x_sample.astype(np.uint8)
                 img_save = Image.fromarray(x_sample.astype(np.uint8))
                 #img = put_watermark(img, wm_encoder)
-                img_save.save(os.path.join(save_inter_path, img_file_base + "_" + f"{base_count:05}.png"))
+                img_save.save(os.path.join(save_inter_path, img_file_base + "_" + f"{base_count:03}.png"))
             base_count += 1
 
         for i, step in enumerate(iterator):
@@ -253,8 +253,8 @@ class PLMSSampler(object):
                     x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
                     x_samples_ddim = x_samples_ddim.cpu().permute(0, 2, 3, 1).numpy()
 
-                    x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
-                    #x_checked_image = x_samples_ddim
+                    #x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
+                    x_checked_image = x_samples_ddim
 
                     if not has_nsfw_concept[0]:
                         x_checked_image_torch = torch.from_numpy(x_checked_image).permute(0, 3, 1, 2)
@@ -264,7 +264,7 @@ class PLMSSampler(object):
                         #img = x_sample.astype(np.uint8)
                         img_save = Image.fromarray(x_sample.astype(np.uint8))
                         #img = put_watermark(img, wm_encoder)
-                        img_save.save(os.path.join(save_inter_path, img_file_base + "_" + f"{base_count:05}.png"))
+                        img_save.save(os.path.join(save_inter_path, img_file_base + "_" + f"{base_count:03}.png"))
                     base_count += 1
 
 
