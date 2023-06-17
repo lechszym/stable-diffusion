@@ -1,10 +1,11 @@
 <?php 
 
     $num_images_to_generate = 3;
-    $H = 256;
-    $W = 256;
+    $H = 512;
+    $W = 512;
     $show_banner = false; 
     $n_iter = $num_images_to_generate;
+
 
 ?>
 
@@ -30,13 +31,13 @@
 	<style>[v-if], [v-show] { display: none !important; }</style>
 
     <link rel="stylesheet" href="css/global.css" media="all">
-	<link rel="stylesheet" href="css/jquery-ui.min.css" integrity="sha256-rByPlHULObEjJ6XQxW/flG2r+22R5dKiAoef+aXWfik=" crossorigin="anonymous">
+	<link rel="stylesheet" href="css/jquery-ui.min.css">
 	
 	<link id="injectcss" rel="stylesheet" href="css/computer-science.css" media="all">
 	
 	
-	<script src="scripts/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="scripts/jquery-migrate.min.js" integrity="sha256-F0O1TmEa4I8N24nY0bya59eP6svWcshqX1uzwaWC4F4=" crossorigin="anonymous"></script>
+	<script src="scripts/jquery.min.js"></script>
+    <script src="scripts/jquery-migrate.min.js"></script>
     <script src="scripts/bad-words.js"></script>
     <meta name="Description" content="University of Otago Department of Computer Science">
 
@@ -234,7 +235,7 @@ async function check_update(msg, prompt) {
     var content = '<div id="' + msg.demo + '" class="diff_res">';
     content += '<div id="' + msg.demo + '_prompt" class="diff_prompt">Generating images based on prompt: "' + prompt + '"...</div>';  
     for (let i = 1; i <= parseInt(msg.n_iter); i++) {
-          content += '<img id="' + msg.demo + '_' + i + '" src="" width="' + parseInt(msg.W) + '" height="' + parseInt(msg.H) + '">';
+          content += '<img id="' + msg.demo + '_' + i + '" src="" width="' + parseInt(msg.W)/2 + '" height="' + parseInt(msg.H)/2 + '">';
     } 
     content += '</div>';
 
@@ -243,7 +244,8 @@ async function check_update(msg, prompt) {
     //alert(msg.n_iter);
     var next = true;
     while(!done) {
-        while(!next) {
+		await sleep(200);
+        if(!next) {
             await sleep(200);
         }
         next = false;
@@ -255,7 +257,13 @@ async function check_update(msg, prompt) {
 
                     if(umsg.update && umsg.results) {
                         let img_id = '#' + umsg.demo + '_' + umsg.n_iter;
-                        $(img_id).attr('src',umsg.im_file);
+                        $(img_id).load(umsg.im_file, function(responseTxt, statusTxt, xhr) {
+							if(statusTxt == "success") {
+								$(this).attr('src',umsg.im_file);
+								next = true;
+							}
+						});
+						//$(img_id).attr('src',umsg.im_file);
                         if(umsg.final) {
                             if(umsg.n_iter >= parseInt(msg.n_iter)) {
                                 done = true;
@@ -269,13 +277,15 @@ async function check_update(msg, prompt) {
                                 step = 'final';
                             }
                         }
-                    }
-                    next=true;
+                    } else {
+						next=true;
+					}
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) { 
                     next=true;
                 }    
         });    
+		await sleep(200);
     }
     $('#' + msg.demo + '_prompt').text('Generated images based on prompt: "' + prompt + '".');  
 

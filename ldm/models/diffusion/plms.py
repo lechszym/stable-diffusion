@@ -256,7 +256,7 @@ class PLMSSampler(object):
                     #x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
                     x_checked_image = x_samples_ddim
 
-                    if not has_nsfw_concept[0]:
+                    if True:
                         x_checked_image_torch = torch.from_numpy(x_checked_image).permute(0, 3, 1, 2)
 
                         x_sample = x_checked_image_torch[0]

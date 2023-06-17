@@ -110,7 +110,7 @@ def parse_arguments(args=None):
         type=str,
         nargs="?",
         help="dir to write results to",
-        default="outputs/txt2img-samples"
+        default="web/generated"
     )
     parser.add_argument(
         "--skip_grid",
@@ -121,6 +121,11 @@ def parse_arguments(args=None):
         "--skip_save",
         action='store_true',
         help="do not save individual samples. For speed measurements.",
+    )
+    parser.add_argument(
+        "--skip_nsfw",
+        action='store_true',
+        help="do not use NSFW.",
     )
     parser.add_argument(
         "--ddim_steps",
@@ -157,7 +162,7 @@ def parse_arguments(args=None):
     parser.add_argument(
         "--n_iter",
         type=int,
-        default=2,
+        default=3,
         help="sample this often",
     )
     parser.add_argument(
@@ -235,13 +240,13 @@ def parse_arguments(args=None):
     parser.add_argument(
         "--cmd",
         type=str,
-        default="cmd/",
+        default="web/cmd",
         help="path to cmd folder",
     )
     parser.add_argument(
         "--demo",
         type=str,
-        default="tmp",
+        default="web/generated",
         help="path to demo subfolder",
     )
 
@@ -343,7 +348,10 @@ def run_diffusion(opt, device, model, sampler, wm_encoder, seed):
                         x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
                         x_samples_ddim = x_samples_ddim.cpu().permute(0, 2, 3, 1).numpy()
 
-                        x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
+                        if not opt.skip_nsfw:
+                            x_checked_image, has_nsfw_concept = check_safety(x_samples_ddim)
+                        else:
+                            x_checked_image = x_samples_ddim
 
                         x_checked_image_torch = torch.from_numpy(x_checked_image).permute(0, 3, 1, 2)
 

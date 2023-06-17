@@ -27,13 +27,12 @@
             $demo_count = $gen_count +1;
 
             //Testing (remove)
-            $demo_count -= 1;
+            //$demo_count -= 1;
 
             $demo = "demo" . str_pad($demo_count, 5, '0', STR_PAD_LEFT);
             $cmd = "--prompt \"$prompt\" --n_iter $n_iter --n_samples 1 --H $H --W $W --demo $demo\n";
 
-            //Testing (uncomment)
-            //unlink($ready_file);
+            unlink($ready_file);
 
             $img_folder = $gen_folder . "/$demo";
             $fp = fopen($go_file, 'w');
