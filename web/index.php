@@ -69,7 +69,7 @@
            
         <form id="gen_form">
           <h3>Try it!</h3><br>
-          <label style="margin-top:20px" for="prompt">Describe what image you want to generate:</label>
+          <label id="prompt_lbl" style="margin-top:20px" for="prompt">Describe what image you want to generate:</label>
           <input style="width: 93%" type="text" id="prompt" name="prompt" size="512">
           <input class="button" id="gen" type="submit" value="Generate">
         </form>
@@ -298,6 +298,13 @@ function run_gen(localList) {
         
         var prompt = $("#prompt").val().trim();
         prompt = filter.clean(prompt);
+
+        if(prompt.includes("*")) {
+          $("#prompt").val(prompt);
+          $("#prompt_lbl").text("Please refolmulate your text prompt:");
+          return;
+        }
+        $("#prompt_lbl").text('Describe what image you want to generate:');
 
         id = makeid(6);
 
