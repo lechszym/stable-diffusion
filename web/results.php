@@ -134,13 +134,16 @@
 		$.ajax({type: "POST",
             url: "cmd.php",
             data: { cmd: "random", rcount: results_count, lshown: last_shown},
-            success: function( msg ) {
+            success: async function( msg ) {
                 msg = JSON.parse(msg);
                 if(msg.ok) {
 					results_count = msg.rcount;
 					last_shown = msg.lshown;
                     check_update(msg, prompt);
-                }
+                } else {
+					await sleep(2000);
+					ready = true;
+				}
             }
           });
 		
