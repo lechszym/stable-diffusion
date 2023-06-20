@@ -76,7 +76,7 @@
             if(!file_exists($demo_folder)) {
                 echo json_encode(array("update"=>True, "results"=>False));
             } else {
-                $results = glob($demo_folder . "/*");
+                $results = glob($demo_folder . "/*");				
                 if($step == 'final') {
                     $im_file = $demo_folder . "/diffusion_" . str_pad($n_iter, 2, '0', STR_PAD_LEFT) . ".png";
                     if(file_exists($im_file)) {
@@ -100,6 +100,7 @@
 			$rcount = intval($args['rcount']);
 			$lshown = intval($args['lshown']);
 			$demo_folders = glob($gen_folder . "/demo*");
+			usort( $demo_folders, function( $a, $b ) { return filemtime($a) - filemtime($b); } );
 			$demos = array();
 			foreach($demo_folders as $folder) {
 				$all_results = True;

@@ -44,22 +44,27 @@
 </head>
 
 
-<body id="computer-science" class="n10562 OTAGO746916  frontpage">
+<body id="computer-science" class="n10562 OTAGO746916  frontpage" style="background-color: black">
 	
 	<div class="container">
 		<div class="vertical-center">
 			<div style="width: 100%; text-align: center">
-				<div class="rtitle">Generating images with AI</div>
+				<div id="show0_title" class="rtitle" style="color: white";>Generating images with AI</div>
 			</div>
 			
 			<div id="results" style="text-align:center">
-			
-				<div class="diff_res">
-					<img id="img_1" src="" width="31%" height="31%">
-					<img id="img_2" src="" width="31%" height="31%">
-					<img id="img_3" src="" width="31%" height="31%">
+
+				<div id="show0">
+					<img id="img_s0_1" class="img_s0" src="" width="31%" height="31%">
+					<img id="img_s0_2" class="img_s0" src="" width="31%" height="31%">
+					<img id="img_s0_3" class="img_s0" src="" width="31%" height="31%">
 				</div>
-			
+
+				<div id="show1">
+					<img id="img_s1" src="" height="vh">
+				</div>
+
+
 			</div>
 		</div>
 	</div>
@@ -71,16 +76,36 @@
 	var ready = true;
 	var results_count = <?php echo $results_count; ?>;
 	var last_shown = -1;
+	let switch_to_other_show = 5;
+	var count_to_switch_to_other_show = switch_to_other_show;
+	let num_shows = 1;
+	var index_show = 0;
 
 	function sleep(ms) {
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
-	async function check_update(msg) {
+	async function check_update(msg, s=0) {
 
 		var done = false;
 		var step = 0;
 		var n_iter = 1;
+
+		if(s==0) {
+			$("#show1").hide();
+			$("#img_s1").css("visibility", "hidden");
+			$("#show0_title").show();
+			$("#show0").show();			
+		} else if(s==1) {
+			n_iter = Math.floor(Math.random() * 3) + 1;
+			step = 0;
+			$("#show0").hide();
+			$("#show0_title").hide();
+			$(".img_s0").css("visibility", "hidden");
+			$("#show1").show();
+		}
+
+
 
 		var next = true;
 		while(!done) {
@@ -96,15 +121,19 @@
 						umsg = JSON.parse(umsg);
 
 						if(umsg.update && umsg.results) {
-							let img_id = '#img_' + n_iter;
+							var img_id = '#img_s0_' + n_iter;
+							if(s==1) {
+								img_id = '#img_s1';
+							}
 							$(img_id).load(umsg.im_file, function(responseTxt, statusTxt, xhr) {
 								if(statusTxt == "success") {
 									$(this).attr('src',umsg.im_file);
+									$(this).css("visibility", "visible");
 									next = true;
 								}
 							});
 							if(umsg.final) {
-								if(umsg.n_iter >= parseInt(msg.n_iter)) {
+								if(umsg.n_iter >= parseInt(msg.n_iter) || s==1) {
 									done = true;
 								} else {
 									n_iter = umsg.n_iter + 1;
@@ -131,15 +160,27 @@
 	}
 
 	function show_random_result() {
+
 		$.ajax({type: "POST",
             url: "cmd.php",
             data: { cmd: "random", rcount: results_count, lshown: last_shown},
             success: async function( msg ) {
                 msg = JSON.parse(msg);
                 if(msg.ok) {
+					if(msg.rcount > results_count) {
+						check_update(msg, 0);
+					} else {
+						if(count_to_switch_to_other_show <= 0) {
+							check_update(msg, index_show+1);
+							index_show = (index_show + 1) % num_shows;
+							count_to_switch_to_other_show = switch_to_other_show;
+						} else {
+							check_update(msg, 0);
+							count_to_switch_to_other_show -= 1;
+						}
+					}
 					results_count = msg.rcount;
 					last_shown = msg.lshown;
-                    check_update(msg, prompt);
                 } else {
 					await sleep(2000);
 					ready = true;
@@ -151,8 +192,6 @@
 
 	async function show_next() {
 
-
-		
 		while(true) {
 
 			if(ready) {
@@ -168,9 +207,18 @@
 
 	$( document ).ready(function() {
  
+		$(window).on('resize', function(){
+			$("#img_s1").height($(this). height());
+		});
 		
 
+		$("#show0").css("visibility", "hidden");
+		$(".img_s0").css("visibility", "hidden");
+		$("#show1").css("visibility", "hidden");
+		$("#img_s1").height($(window). height());
 		show_next();
+
+
 
 	});
 </script>
