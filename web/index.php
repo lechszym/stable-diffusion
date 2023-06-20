@@ -137,7 +137,7 @@
 
         <div class="panel_num">2</div>
 
-        <p>A neural network that takes as input a text caption and an image is trained to produce slightly less noisy version of that image.  This is done on lots of images with various levels of noise.</p>
+        <p>A neural network that takes as input a text caption and an image is trained to produce a slightly less noisy version of that image.  This is done on lots of images with various levels of noise.</p>
 
         <div class="im_panel">
           <img src="images/diff2.png" width="55%">
@@ -149,7 +149,7 @@
 
         <div class="panel_num">3</div>
 
-        <p>Once trained, the network can generate a new image through repeated de-noising, starting from completely ranom noise.  The text caption guides the generation process.  Different starting random noise produces different image.</p>
+        <p>Once trained, the network can generate a new image through repeated de-noising, starting from completely random noise.  The text caption guides the generation process.  Different starting random noise produces a different image.</p>
 
         <div class="im_panel">
           <img src="images/diff3.png" width="55%">
