@@ -191,6 +191,7 @@ async function check_ready() {
                     msg = JSON.parse(msg);
                     if(msg.cmd == "ready?" && msg.ready) {
                         $( "#gen_form").css('visibility', 'visible');
+                        $('#prompt').val("");
                         ready = true;
                     }
                 }
@@ -237,20 +238,22 @@ async function check_update(msg, prompt) {
 							var content = '<div id="' + msg.demo + '" class="diff_res">';
 							content += '<div id="' + msg.demo + '_prompt" class="diff_prompt">Generating images based on prompt: "' + prompt + '"...</div>';  
 							for (let i = 1; i <= parseInt(msg.n_iter); i++) {
-								  content += '<img id="' + msg.demo + '_' + i + '" src="" width="31%" height="31%">';
+								  content += '<img id="' + msg.demo + '_' + i + '" class="img_' + msg.demo + '" src="" width="31%" height="31%">';
 							} 
 							content += '</div>';
 
 							$(content).insertAfter('#results');
+              $('.img_' + msg.demo).css('visibility', 'hidden');
 							first = false;
 						}
 						
 						
-                        let img_id = '#' + umsg.demo + '_' + umsg.n_iter;
-                        $(img_id).load(umsg.im_file, function(responseTxt, statusTxt, xhr) {
+              let img_id = '#' + umsg.demo + '_' + umsg.n_iter;
+              $(img_id).load(umsg.im_file, function(responseTxt, statusTxt, xhr) {
 							if(statusTxt == "success") {
-								$(this).attr('src',umsg.im_file);
-								next = true;
+						    $(this).attr('src',umsg.im_file);
+                $(this).css("visibility", "visible");
+            		next = true;
 							}
 						});
 						//$(img_id).attr('src',umsg.im_file);
