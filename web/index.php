@@ -83,7 +83,7 @@
 	  $k=0;
 	  for($i = count($demo_folders) - 1; $i >= 0; $i--)
 	  {
-		  if($k >= 2) {
+		  if($k >= 0) {
 			  break;
 		  }
 		  $demo_path = $demo_folders[$i];

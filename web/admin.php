@@ -1,8 +1,20 @@
 <?php 
 
     $gen_folder = "generated";
+    $sel_folder = "selected";
     $demos = glob($gen_folder . "/demo*");
+    $sel_folders = glob($sel_folder . "/demo*");
+	$selected = array();
 
+	foreach($sel_folders as $demo_folder) {
+		$j = strpos($demo_folder, "demo");	
+		if($j === false) {
+			continue;
+		}
+
+		$demo = substr($demo_folder, $j);
+		array_push($selected, $demo);
+	}
 
 ?>
 
@@ -53,17 +65,23 @@
 		}
 
 		$demo = substr($demo_folder, $j);
+		$checked = "";
+		$background = "white"; 
+		if(in_array($demo,$selected)) {
+			$checked = " checked=\"\"";
+			$background = "#D0FF8F"; 
+		}
 
-		echo "<div id=" . $demo . " class=\"diff_res\" style=\"border-style: solid; width: 320px; float: left\">\n";
+		echo "\n    <div id=" . $demo . " class=\"diff_res\" style=\"border-style: solid; width: 320px; float: left;background-color: " . $background . "\">\n";
 
-		echo "<div class=\"admin_prompt\">" . $demo_folder . "</div>\n"; 
+		echo "      <div class=\"admin_prompt\">" . $demo_folder . "</div>\n"; 
 
 		
 		$prompt_file = $demo_folder . "/prompt.txt";
 		
 		if(file_exists($prompt_file)) {
 			$prompt = file_get_contents($prompt_file);
-			echo "<div class=\"admin_prompt\">\"" . $prompt . "\"</div>\n"; 
+			echo "      <div class=\"admin_prompt\">\"" . $prompt . "\"</div>\n"; 
 		}
 		for($i=1;$i<=3;$i++) {
 			$img_file = $demo_folder . "/diffusion_" . str_pad($i, 2, '0', STR_PAD_LEFT) . ".png";
@@ -77,17 +95,19 @@
 				
 			}
 			if(file_exists($img_file)) {
-				echo '  <img src="' . $img_file . '" width="100px" height="100px">' . "\n"; 
+				echo '      <img src="' . $img_file . '" width="100px" height="100px">' . "\n"; 
 			}
 		}
 
-		echo "<form>\n";
-		echo "<input type=\"hidden\" name=\"demo\" value=\"" . $demo . "\">\n";
-        echo  "<input class=\"button del_btn\" type=\"submit\" value=\"Delete\n\">\n";
-        echo "</form>\n";
+		echo "      <form autocomplete=\"off\">\n";
+		echo "        <input type=\"hidden\" name=\"demo\" value=\"" . $demo . "\">\n";
+        echo "        <input class=\"button del_btn\" type=\"submit\" value=\"Delete\">\n";
+		echo "        <span>Selected for big screen</span>\n";
+		echo "        <input type=\"checkbox\" class=\"sel_chk\" id=\"" . $demo . "_sel\" name=\"" . $demo . "_sel\" value=\"" . $demo . "\"" . $checked . ">\n";
+		echo "      </form>\n";
 
 
-		echo "</div>";
+		echo "    </div>\n";
 		
 		
 		
@@ -126,6 +146,34 @@
 			} 		
 			
 		});
+
+		$('.sel_chk').change(function() {
+			let demo = $(this).val();
+			var arg = "rm";
+
+			if(this.checked) {
+				//var returnVal = confirm("Are you sure?");
+				//$(this).prop("checked", returnVal);
+				arg = "mk";
+			} else {
+				arg = "rm";
+			}
+			$.ajax({type: "POST",
+				url: "cmd.php",
+				data: { cmd: "select", demo: demo, arg: arg},
+				success: function( msg ) {
+					msg = JSON.parse(msg);
+					if(msg.ok) {
+						if(arg == "rm") {
+							$('#' + msg.demo).css("background-color", "white");
+						} else {
+							$('#' + msg.demo).css("background-color", "#D0FF8F");
+						}
+					}
+				}
+			});
+
+    });
 
 	});
 </script>

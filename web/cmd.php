@@ -1,6 +1,7 @@
 <?php 
 
     $gen_folder = "generated";
+    $sel_folder = "selected";
     $cmd_folder = "cmd";
 
     $gen_count = count(glob($gen_folder . "/demo*"));
@@ -99,7 +100,7 @@
         } elseif($cmd == 'random') {
 			$rcount = intval($args['rcount']);
 			$lshown = intval($args['lshown']);
-			$demo_folders = glob($gen_folder . "/demo*");
+			$demo_folders = glob($sel_folder . "/demo*");
 			usort( $demo_folders, function( $a, $b ) { return filemtime($a) - filemtime($b); } );
 			$demos = array();
 			foreach($demo_folders as $folder) {
@@ -150,6 +151,11 @@
 		} elseif($cmd == 'delete') {
 			$demo = $args['demo'];
 			$demo_folder = $gen_folder . "/" . $demo;
+			$demo_lnk_folder = $sel_folder . "/" . $demo;
+
+			if(file_exists($demo_lnk_folder)) {
+				unlink($demo_lnk_folder);
+			}
 
 			if(file_exists($demo_folder)) {
 				deleteDir($demo_folder);
@@ -157,6 +163,22 @@
 			} else {
 				echo json_encode(array("ok"=>False));				
 			}
+		} elseif($cmd == "select") {
+			$demo = $args['demo'];
+			$cmd_arg = $args['arg'];
+			$demo_tgt_folder = $gen_folder . "/" . $demo;
+			$demo_lnk_folder = $sel_folder . "/" . $demo;
+			$absolute_path = dirname(__FILE__);
+			$demo_tgt_folder = $absolute_path . "/" . $demo_tgt_folder;
+			$demo_lnk_folder = $absolute_path . "/" . $demo_lnk_folder;
+			if($cmd_arg == "rm") {
+				unlink($demo_lnk_folder);
+			} elseif($cmd_arg == "mk") {
+				symlink($demo_tgt_folder, $demo_lnk_folder);
+			}
+			echo json_encode(array("ok"=>True, "demo"=>$demo, "arg"=>$cmd_arg));
+		} else {
+			echo json_encode(array("ok"=>False));
 		}
     }
 

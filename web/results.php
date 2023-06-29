@@ -1,9 +1,9 @@
 <?php 
 
-    $gen_folder = "generated";
+    $sel_folder = "selected";
     $cmd_folder = "cmd";
 
-	$results = glob($gen_folder . "/demo*");
+	$results = glob($sel_folder . "/demo*");
     $results_count = count($results);
 
 
