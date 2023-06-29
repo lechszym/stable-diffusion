@@ -102,7 +102,7 @@
 		echo "      <form autocomplete=\"off\">\n";
 		echo "        <input type=\"hidden\" name=\"demo\" value=\"" . $demo . "\">\n";
         echo "        <input class=\"button del_btn\" type=\"submit\" value=\"Delete\">\n";
-		echo "        <span>Selected for big screen</span>\n";
+		echo "        <span>Big screen</span>\n";
 		echo "        <input type=\"checkbox\" class=\"sel_chk\" id=\"" . $demo . "_sel\" name=\"" . $demo . "_sel\" value=\"" . $demo . "\"" . $checked . ">\n";
 		echo "      </form>\n";
 

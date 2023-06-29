@@ -1,4 +1,8 @@
 <?php 
+	$win = False;
+	if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+		$win = True;
+	} 
 
     $gen_folder = "generated";
     $sel_folder = "selected";
@@ -172,7 +176,11 @@
 			$demo_tgt_folder = $absolute_path . "/" . $demo_tgt_folder;
 			$demo_lnk_folder = $absolute_path . "/" . $demo_lnk_folder;
 			if($cmd_arg == "rm") {
-				unlink($demo_lnk_folder);
+				if($win) {
+					rmdir($demo_lnk_folder);
+				} else {
+					unlink($demo_lnk_folder);
+				}
 			} elseif($cmd_arg == "mk") {
 				symlink($demo_tgt_folder, $demo_lnk_folder);
 			}
