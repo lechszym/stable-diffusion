@@ -222,7 +222,7 @@ async function check_update(msg, prompt) {
         next = false;
         $.ajax({type: "POST",
                 url: "cmd.php",
-                data: { cmd: "update", demo: msg.demo, n_iter: n_iter, step: step},
+                data: { cmd: "update", demo: msg.demo, n_iter: n_iter, step: step, folder: "generated"},
                 success: function( umsg ) {
                     umsg = JSON.parse(umsg);
 

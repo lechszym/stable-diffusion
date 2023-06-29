@@ -163,7 +163,11 @@
 			$demo_lnk_folder = $sel_folder . "/" . $demo;
 
 			if(file_exists($demo_lnk_folder)) {
-				unlink($demo_lnk_folder);
+				if($win) {
+					rmdir($demo_lnk_folder);
+				} else {
+					unlink($demo_lnk_folder);
+				}
 			}
 
 			if(file_exists($demo_folder)) {
