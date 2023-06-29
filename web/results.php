@@ -113,6 +113,7 @@
 		var n_available;
 		var n_idx;
 		var delay = 50;
+		var folder = 'generated';
 
 		if(s==0) {
 			$("#show1").hide();
@@ -129,6 +130,7 @@
 			$("#show2").hide();
 			$("#show1").show();
 		} else if(s==2) {
+			folder = "selected";
 			set_collage_vars();
 			$("#show0").hide();
 			$("#show0_title").hide();
@@ -166,7 +168,7 @@
 			next = false;
 			$.ajax({type: "POST",
 					url: "cmd.php",
-					data: { cmd: "update", demo: msg.demo, n_iter: n_iter, step: step},
+					data: { cmd: "update", demo: msg.demo, n_iter: n_iter, step: step, folder: folder},
 					success: function( umsg ) {
 						umsg = JSON.parse(umsg);
 

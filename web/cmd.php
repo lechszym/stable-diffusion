@@ -76,7 +76,12 @@
             $demo = $args['demo'];
             $n_iter = intval($args['n_iter']);
             $step = $args['step'];
-            $demo_folder = $gen_folder . "/$demo";
+			$folder = $args['folder'];
+			if($folder == 'generated') {
+				$demo_folder = $gen_folder . "/$demo";
+			} else {
+				$demo_folder = $sel_folder . "/$demo";
+			}
 
             if(!file_exists($demo_folder)) {
                 echo json_encode(array("update"=>True, "results"=>False));
